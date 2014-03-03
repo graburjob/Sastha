@@ -2,80 +2,74 @@ package com.graburjob.sastha.controller.fileupload;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.List;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
-import com.amzi.util.DbUtil;
+import com.graburjob.sastha.model.registration.Document;
+import com.graburjob.sastha.service.fileupload.FileuploadService;
+import com.graburjob.sastha.service.registration.RegistrationService;
 
-@WebServlet("/fileUpload")
+@WebServlet("/UploadServlet")
 @MultipartConfig(maxFileSize = 16177215) // upload file up to 16MB
 public class UploadServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -1623656324694499109L;
-	private Connection conn;
-
-	public UploadServlet() {
-		conn = DbUtil.getConnection();
-	}
-
+	
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		
-		// gets values of text fields
-		String firstName = request.getParameter("firstName");
-		String lastName = request.getParameter("lastName");
-
+		Document document = new Document();
+		String userId = null;
+		String role = null;
 		InputStream inputStream = null;
-
+		
+		String documentType = request.getParameter("optionsRadios");
+		document.setDocumentType(documentType);
 		// obtains the upload file part in this multipart request
-		Part filePart = request.getPart("photo");
+		Part filePart = request.getPart("scannedCopy");
 		if (filePart != null) {
 			// debug messages
-			System.out.println(filePart.getName());
+			System.out.println(getFileName(filePart));
 			System.out.println(filePart.getSize());
 			System.out.println(filePart.getContentType());
 
 			// obtains input stream of the upload file
 			inputStream = filePart.getInputStream();
+			document.setImage(inputStream);
+			document.setDocumentName(getFileName(filePart));
 		}
-
-		String message = null; // message will be sent back to client
-
-		try {
-			// constructs SQL statement
-			String sql = "INSERT INTO contacts (first_name, last_name, photo) values (?, ?, ?)";
-			PreparedStatement statement = conn.prepareStatement(sql);
-			statement.setString(1, firstName);
-			statement.setString(2, lastName);
-
-			if (inputStream != null) {
-				// fetches input stream of the upload file for the blob column
-				statement.setBlob(3, inputStream);
-			}
-
-			// sends the statement to the database server
-			int row = statement.executeUpdate();
-			if (row > 0) {
-				message = "Image is uploaded successfully into the Database";
-			}
-		} catch (SQLException ex) {
-			message = "ERROR: " + ex.getMessage();
-			ex.printStackTrace();
-		}
-		// sets the message in request scope
-		request.setAttribute("Message", message);
-
-		// forwards to the message page
-		getServletContext().getRequestDispatcher("/submit.jsp").forward(
-				request, response);
+		HttpSession session=request.getSession(false);  
+        if(session!=null){  
+        	userId=(String)session.getAttribute("userId");
+        	role=(String)session.getAttribute("role");  
+        }
+		FileuploadService fileuploadService =  new FileuploadService();
+		fileuploadService.upLoadDocument(document, userId);
+		RegistrationService regService = new RegistrationService();
+		List<Document> listOfDocument= regService.getUserProfile(userId,role);
+		request.setAttribute("uploadedDocumentsByUser", listOfDocument);
+		RequestDispatcher requestDispatcher = request.getRequestDispatcher("UserHome.jsp");
+		requestDispatcher.forward(request, response);
 	}
+	
+	private String getFileName(Part part) {
+        String contentDisp = part.getHeader("content-disposition");
+        System.out.println("content-disposition header= "+contentDisp);
+        String[] tokens = contentDisp.split(";");
+        for (String token : tokens) {
+            if (token.trim().startsWith("filename")) {
+                return token.substring(token.indexOf("=") + 2, token.length()-1);
+            }
+        }
+        return "";
+    }
 }

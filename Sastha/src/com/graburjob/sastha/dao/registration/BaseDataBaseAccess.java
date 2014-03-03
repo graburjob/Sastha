@@ -17,11 +17,11 @@ public class BaseDataBaseAccess {
 		}
 
 	    String serverName = "localhost";
-	    String mydatabase = "emars";
+	    String mydatabase = "sastha";
 	    String url = "jdbc:mysql://" + serverName + "/" + mydatabase; 
 	                                                                    
-	    String username = "emars";
-	    String password = "emars";
+	    String username = "sastha";
+	    String password = "sastha";
 	    try {
 			connection = DriverManager.getConnection(url, username, password);
 		} catch (SQLException e) {

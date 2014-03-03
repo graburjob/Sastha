@@ -1,6 +1,7 @@
 package com.graburjob.sastha.controller.registration;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -8,8 +9,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-import com.graburjob.sastha.model.registration.UserProfile;
+import com.graburjob.sastha.model.registration.Document;
 import com.graburjob.sastha.service.registration.RegistrationService;
 
 /**
@@ -40,13 +42,16 @@ public class LoginController extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("inside Do Post LoginController");
 		
-		String email = request.getParameter("email");
+		String userId = request.getParameter("userId");
 		String password = request.getParameter("password");
 		RegistrationService regService = new RegistrationService();
-		String role = regService.isValidUser(email,password);
-		UserProfile patientProfile= regService.getUserProfile(email,role);
-		request.setAttribute("currentPatientProfile", patientProfile);
-		RequestDispatcher requestDispatcher = request.getRequestDispatcher("uploadImage.jsp");
+		String role = regService.isValidUser(userId,password);
+		List<Document> listOfDocument= regService.getUserProfile(userId,role);
+		request.setAttribute("uploadedDocumentsByUser", listOfDocument);
+		HttpSession session=request.getSession();  
+        session.setAttribute("userId",userId);
+        session.setAttribute("role",role); 
+		RequestDispatcher requestDispatcher = request.getRequestDispatcher("UserHome.jsp");
 		requestDispatcher.forward(request, response);
 	}
 

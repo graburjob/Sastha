@@ -24,9 +24,9 @@
 
 
     <div class="col-lg-4">
-        <a href="index.html"><img src="images/emars_logo.png"></a>
+        <a href="index.html"><img src="images/Logo.png"></a>
       <div class="header">
-        <h2>Apollos</h2>
+        <h2>Sastha</h2>
       </div>
     </div>
 
@@ -34,8 +34,8 @@
     <div class="col-lg-8">
       <ul class="nav nav-pills pull-right">
         <li><a href="#"><h3>Home</h3></a></li>
-        <li><a href="#"><h3>Profile</h3></a></li>
-        <li><a href="#"><h3>Messages</h3></a></li>
+        <li><a href="#"><h3>Products</h3></a></li>
+        <li><a href="#"><h3>Contact Us</h3></a></li>
       </ul>
     </div>
 
@@ -52,14 +52,14 @@
       </div>
        <div class="col-lg-6">
       <div class="header">
-        <h2>Patient Login</h2><br /><br />
+        <h2>User Login</h2><br /><br />
       </div>
         <form role="form" method="post" action="LoginController">
 
 
            <div class="form-group">
-            <label for="labelEmail">Email</label>
-            <input type="email" class="form-control" id="email" name="email" placeholder="Enter Your Mail ID">
+            <label for="labelEmail">User Name</label>
+            <input type="text" class="form-control" id="userId" name="userId" placeholder="Enter Your User ID">
           </div>
 
           <div class="form-group">
